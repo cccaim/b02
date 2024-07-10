@@ -52,7 +52,7 @@
                         <tr th:each="dto: ${responseDTO.dtoList}">
                             <th scope="row">[[${dto.bno}]]</th>
                             <td>
-                                <a th:href="|@{/board/read(bno = ${dto.bno})}&${link}|">[[${dto.title}]]</a>
+                                <a th:href="|@{/board/read(bno=${dto.bno})}&${link}|">[[${dto.title}]]</a>
                             </td>
                             <td>[[${dto.writer}]]</td>
                             <td>[[${#temporals.format(dto.regDate, 'yyyy-MM-dd')}]]</td>
@@ -99,39 +99,45 @@
             </div>
         </div>
     </div>
+
 </div>
 
 <script layout:fragment="script" th:inline="javascript">
-    document.querySelector(".pagination").addEventListener("click",function(e){
-        e.preventDefault()
-        e.stopPropagation()
+   document.querySelector(".pagination").addEventListener("click", function (e){
+       e.preventDefault(); //submit 이벤트 중지
+       e.stopPropagation(); //중지
+       const target = e.target; //클릭한 타겟
+       if(target.tagName !== 'A'){
+           return; //a태그가 아니면 중지
+       }
+       const num = target.getAttribute("data-num");
+       const formObj = document.querySelector("form");
+       formObj.innerHTML += `<input type="hidden" name="page" value="${num}">`;
+       formObj.submit();
+   })
 
-        const target = e.target
+   document.querySelector(".clearBtn").addEventListener("click", function (e){
+       e.preventDefault()
+       e.stopPropagation()
 
-        if(target.tagName !== 'A'){
-            return
-        }
+       self.location ='/board/list'
+   })
 
-        const num = target.getAttribute("data-num")
-        const formObj = document.querySelector("form")
+    //모달 열기 (전달된 결과가 있으면)=> 모달을 염
+   const result = [[${result}]]
+   const modal = new bootstrap.Modal(document.querySelector(".modal"))
 
-        formObj.innerHTML += `<input type='hidden' name='page' value='${num}'>`
-        formObj.submit()
-    },false)
+   if(result){
+       modal.show()
+   }
 
-    document.querySelector(".clearBtn").addEventListener("click",function (e){
-        e.preventDefault()
-        e.stopPropagation()
 
-        self.location='/board/list'
-    },false)
-
-    const result = [[${result}]]
-    const modal = new bootstrap.Modal(document.querySelector(".modal"))
-
-    if(result){
-        modal.show()
-    }
-
-    console.log("script............")
 </script>
+
+
+
+
+
+
+
+

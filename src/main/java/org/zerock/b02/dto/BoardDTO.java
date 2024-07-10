@@ -1,6 +1,5 @@
 package org.zerock.b02.dto;
 
-
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -10,24 +9,22 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 public class BoardDTO {
 
-  private Long bno;
+    private Long bno;
 
-  @NotEmpty
-  @Size(min=3,max=100)
-  private String title;
+    @NotEmpty
+    @Size(min = 3, max = 100)
+    private String title;   //제목은 3,100자까지
+    @NotEmpty
+    private String content; //필요
+    @NotEmpty
+    private String writer;  //필요
 
-  @NotEmpty
-  private String content;
-
-  @NotEmpty
-  private String writer;
-  private LocalDateTime regDate;
-  private LocalDateTime modDate;
-
+    private LocalDateTime regDate;
+    private LocalDateTime modDate;
 }

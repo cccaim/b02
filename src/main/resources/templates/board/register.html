@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:th="http://www.thymeleaf.org"
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/basic.html}">
 
 <head>
@@ -23,12 +23,13 @@
 
                         <div class="input-group mb-3">
                             <span class="input-group-text">Content</span>
-                            <textarea class="form-control cl-sm-5" rows="5" name="content"></textarea>
+                            <textarea class="form-control col-sm-5" rows="5" name="content"></textarea>
                         </div>
 
                         <div class="input-group mb-3">
                             <span class="input-group-text">Writer</span>
                             <input type="text" name="writer" class="form-control" placeholder="Writer">
+
                         </div>
 
                         <div class="my-4">
@@ -38,25 +39,26 @@
                             </div>
                         </div>
                     </form>
+                </div><!--end card body-->
 
-                </div>
-            </div>
-        </div>
-    </div>
+            </div><!--end card-->
+        </div><!-- end col-->
+    </div><!-- end row-->
 </div>
 
+
 <script layout:fragment="script" th:inline="javascript">
+
     const errors = [[${errors}]]
     console.log(errors)
 
     let errorMsg = ''
 
     if(errors){
-        for(let i = 0; i < errors.length; i++){
-            errorMsg += `${errors[i].field} 은(는) ${errors[i].defaultMessage} \n`
+        for (let i = 0; i < errors.length; i++) {
+            errorMsg += `${errors[i].field}은(는) ${errors[i].code} \n`
         }
         alert(errorMsg)
     }
-</script>
 
-</html>
+</script>
