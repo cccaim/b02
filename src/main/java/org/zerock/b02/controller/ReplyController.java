@@ -50,4 +50,21 @@ public class ReplyController {
 
         return replyDTO;
     }
+
+    @DeleteMapping("/{rno}")
+    public Map<String,Long> delete(@PathVariable("rno") Long rno) {
+        replyService.remove(rno);
+        Map<String,Long> resultMap = new HashMap<>();
+        resultMap.put("rno",rno);
+        return resultMap;
+    }
+
+    @PutMapping(value = "/{rno}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String,Long> update(@PathVariable("rno") Long rno, @RequestBody ReplyDTO replyDTO) {
+        replyDTO.setRno(rno);
+        replyService.modify(replyDTO);
+        Map<String,Long> resultMap = new HashMap<>();
+        resultMap.put("rno",rno);
+        return resultMap;
+    }
 }
