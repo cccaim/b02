@@ -36,12 +36,18 @@ public class ReplyController {
         return ResponseEntity.ok(map); //ResponseEntity 는 상태코드와 함께 객체 전달
     }
 
-//    @GetMapping(value = "/list/{bno}")
-//    public PageResponseDTO<ReplyDTO> getList(@PathVariable("bno") Long bno, PageRequestDTO pageRequestDTO) {
-//        PageResponseDTO<ReplyDTO> responseDTO = replyService.getListOfBoard(bno.pageRequestDTO);
-//
-//        return responseDTO;
-//    }
+    @GetMapping(value = "/list/{bno}")
+    public PageResponseDTO<ReplyDTO> getList(@PathVariable("bno") Long bno, PageRequestDTO pageRequestDTO) {
+        PageResponseDTO<ReplyDTO> responseDTO = replyService.getListOfBoard(bno, pageRequestDTO);
 
+        return responseDTO;
+    }
 
+    @GetMapping("/{rno}")
+    public ReplyDTO getReplyDTO(@PathVariable("rno") Long rno) {
+
+        ReplyDTO replyDTO = replyService.read(rno);
+
+        return replyDTO;
+    }
 }
