@@ -8,6 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.zerock.b02.domain.Board;
 import org.zerock.b02.domain.QBoard;
+import org.zerock.b02.domain.QReply;
+import org.zerock.b02.domain.Reply;
+import org.zerock.b02.dto.BoardListReplyCountDTO;
 
 import java.util.List;
 
@@ -87,4 +90,17 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
 
     }
 
+    @Override
+    public Page<BoardListReplyCountDTO> searchWithReplyCount(String[] types, String keyword, Pageable pageable) {
+        // 보드와 댓글이 둘다 필요해서 Q클래스로 만듬
+        QBoard board = QBoard.board;
+        QReply reply = QReply.reply;
+
+        JPQLQuery<Board> query = from(board);
+        // 댓글과 함꼐 가져오기 위해 레프트 조인(댓글이 없더라도 게시글은 나옴)
+        query.leftJoin(reply).on(reply.board.eq(board));
+
+        query.groupBy(reply.board);
+        return null;
+    }
 }
