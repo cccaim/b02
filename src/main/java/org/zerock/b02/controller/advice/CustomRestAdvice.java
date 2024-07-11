@@ -1,10 +1,12 @@
 package org.zerock.b02.controller.advice;
 
 import lombok.extern.log4j.Log4j2;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -29,6 +31,17 @@ public class CustomRestAdvice {
                 errorMap.put(fieldError.getField(), fieldError.getCode());
             });
         }
+        return ResponseEntity.badRequest().body(errorMap);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
+    public ResponseEntity<Map<String, String>> handleFkException(Exception e) {
+        log.error(e);
+        Map<String, String> errorMap = new HashMap<>();
+
+        errorMap.put("time",""+System.currentTimeMillis());
+        errorMap.put("msg", "constraint fails");
         return ResponseEntity.badRequest().body(errorMap);
     }
 }
