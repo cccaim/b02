@@ -1,5 +1,7 @@
 package org.zerock.b02.service;
 
+import org.zerock.b02.dto.PageRequestDTO;
+import org.zerock.b02.dto.PageResponseDTO;
 import org.zerock.b02.dto.ReplyDTO;
 
 public interface ReplyService {
@@ -11,4 +13,6 @@ public interface ReplyService {
   void modify(ReplyDTO replyDTO);
 
   void remove(Long rno);
+  //게시글의 모든댓글 검색
+  PageResponseDTO<ReplyDTO> getListOfBoard(Long bno, PageRequestDTO requestDTO);
 }
