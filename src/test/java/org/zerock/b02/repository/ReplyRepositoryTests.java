@@ -46,6 +46,7 @@ public class ReplyRepositoryTests {
         //결과에 Page 객체에 댓글 리스트가 포함되어 있으므로 getContent 로 리스트를 꺼내서 출력
         result.getContent().forEach(reply -> {
             log.info(reply);
+
         });
     }
 }
