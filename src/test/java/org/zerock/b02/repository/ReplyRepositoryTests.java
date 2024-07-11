@@ -1,5 +1,6 @@
 package org.zerock.b02.repository;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ public class ReplyRepositoryTests {
         log.info(result);
     }
 
+    @Transactional
     @Test
     public void testBaordReplies() {
         Long bno = 100L;
