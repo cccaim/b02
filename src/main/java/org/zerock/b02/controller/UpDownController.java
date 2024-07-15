@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -25,29 +27,33 @@ public class UpDownController {
 
 //  @ApiOperation(value = "Upload Post", notes = "POST 방식으로 파일등록")
   @PostMapping(value = "/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public String upload(UploadFileDTO uploadFileDTO) {
+  public List<UploadResultDTO> upload(UploadFileDTO uploadFileDTO) {
     log.info(uploadFileDTO);
 
     if (uploadFileDTO.getFiles() != null){
+      final List<UploadResultDTO> list = new ArrayList<>();
       uploadFileDTO.getFiles().forEach(multipartFile -> {
-
         String originalName = multipartFile.getOriginalFilename();
         String uuid = UUID.randomUUID().toString();
-
         Path savePath = Paths.get(uploadPath, uuid+"_"+originalName);
+        boolean image = false;
 
         try{
           multipartFile.transferTo(savePath);
           if (Files.probeContentType(savePath).startsWith("image")) {
-           File thumbFile = new File(uploadPath,"s_"+uuid+"_"+originalName);
+            image = true;
+            File thumbFile = new File(uploadPath,"s_"+uuid+"_"+originalName);
             Thumbnailator.createThumbnail(savePath.toFile(),thumbFile,200,200);
           }
         } catch (IOException e) {
           e.printStackTrace();
         }
 
+        list.add(UploadResultDTO.builder().uuid(uuid).fileName(originalName).img(image).build());
+
         log.info(multipartFile.getOriginalFilename());
       });
+      return list;
     }
     return null;
   }
