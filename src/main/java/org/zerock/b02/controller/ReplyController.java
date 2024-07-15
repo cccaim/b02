@@ -1,5 +1,6 @@
 package org.zerock.b02.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.MediaType;
@@ -24,47 +25,54 @@ public class ReplyController {
     private final ReplyService replyService;
 
     @PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map<String,Long>> register(@RequestBody ReplyDTO replyDTO, BindingResult bindingResult) throws BindException {
-        log.info(replyDTO);
-        if (bindingResult.hasErrors()){
+    public Map<String,Long> register(@Valid @RequestBody ReplyDTO replyDTO,
+                                                     BindingResult bindingResult) throws BindException {
+        log.info("Registering new reply: " + replyDTO);
+        if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
         }
         Map<String,Long> map = new HashMap<>();
-        Long rno = replyService.register(replyDTO);
-        map.put("rno",rno);
 
-        return ResponseEntity.ok(map); //ResponseEntity 는 상태코드와 함께 객체 전달
+        Long rno = replyService.register(replyDTO);
+        map.put("rno", rno);
+
+        return map;
     }
 
-    @GetMapping(value = "/list/{bno}")
-    public PageResponseDTO<ReplyDTO> getList(@PathVariable("bno") Long bno, PageRequestDTO pageRequestDTO) {
-        PageResponseDTO<ReplyDTO> responseDTO = replyService.getListOfBoard(bno, pageRequestDTO);
+    //get 으로 게시물의 댓글 목록가져옴
+    @GetMapping("/list/{bno}")
+    public PageResponseDTO<ReplyDTO> getList(@PathVariable("bno") Long bno,
+                                             PageRequestDTO pageRequestDTO) {
+        PageResponseDTO<ReplyDTO> responseDTO =
+                replyService.getListOfBoard(bno, pageRequestDTO);
 
         return responseDTO;
     }
 
+    //특정 댓글조회
     @GetMapping("/{rno}")
     public ReplyDTO getReplyDTO(@PathVariable("rno") Long rno) {
-
         ReplyDTO replyDTO = replyService.read(rno);
-
         return replyDTO;
     }
 
+    //댓글 삭제하기 (rno)
     @DeleteMapping("/{rno}")
     public Map<String,Long> delete(@PathVariable("rno") Long rno) {
         replyService.remove(rno);
-        Map<String,Long> resultMap = new HashMap<>();
-        resultMap.put("rno",rno);
-        return resultMap;
+        Map<String,Long> map = new HashMap<>();
+        map.put("rno", rno);
+        return map;
     }
 
+    //댓글을 수정하기
     @PutMapping(value = "/{rno}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String,Long> update(@PathVariable("rno") Long rno, @RequestBody ReplyDTO replyDTO) {
+    public Map<String, Long> modify(@PathVariable("rno") Long rno,
+                                    @RequestBody ReplyDTO replyDTO){
         replyDTO.setRno(rno);
         replyService.modify(replyDTO);
-        Map<String,Long> resultMap = new HashMap<>();
-        resultMap.put("rno",rno);
-        return resultMap;
+        Map<String,Long> map = new HashMap<>();
+        map.put("rno", rno);
+        return map;
     }
 }

@@ -1,6 +1,5 @@
 package org.zerock.b02.repository;
 
-import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,6 @@ public class ReplyRepositoryTests {
         log.info(result);
     }
 
-    @Transactional
     @Test
     public void testBaordReplies() {
         Long bno = 100L;
@@ -46,7 +44,6 @@ public class ReplyRepositoryTests {
         //결과에 Page 객체에 댓글 리스트가 포함되어 있으므로 getContent 로 리스트를 꺼내서 출력
         result.getContent().forEach(reply -> {
             log.info(reply);
-
         });
     }
 }

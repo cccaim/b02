@@ -17,6 +17,7 @@ public interface BoardService {
 
     PageResponseDTO<BoardDTO> list(PageRequestDTO request);
 
+    //댓글갯수 포함
     PageResponseDTO<BoardListReplyCountDTO> listWithReplyCount(PageRequestDTO pageRequestDTO);
 }
 

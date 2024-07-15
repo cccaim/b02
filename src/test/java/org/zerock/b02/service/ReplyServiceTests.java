@@ -10,17 +10,17 @@ import org.zerock.b02.dto.ReplyDTO;
 @Log4j2
 public class ReplyServiceTests {
 
-  @Autowired
-  private ReplyService replyService;
+    @Autowired
+    private ReplyService replyService;
 
-  @Test
-  public void testRegister() {
-    ReplyDTO replyDTO = ReplyDTO.builder()
-            .replyText("ReplyDTO 테스트")
-            .replyer("리플라이어")
-            .bno(100L)
-            .build();
+    @Test
+    public void testRegister() {
+        ReplyDTO replyDTO = ReplyDTO.builder()
+                .replyText("댓글내용...")
+                .replyer("replyer")
+                .bno(100L)
+                .build();
 
-    log.info(replyService.register(replyDTO));
-  }
+        log.info(replyService.register(replyDTO));
+    }
 }

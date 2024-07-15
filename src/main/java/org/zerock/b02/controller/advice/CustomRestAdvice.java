@@ -37,12 +37,11 @@ public class CustomRestAdvice {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
-    public ResponseEntity<Map<String, String>> handleFkException(Exception e) {
+    public ResponseEntity<Map<String, String>> handleFKException(Exception e) {
         log.error(e);
         Map<String, String> errorMap = new HashMap<>();
-
-        errorMap.put("time",""+System.currentTimeMillis());
-        errorMap.put("msg", "constraint fails");
+        errorMap.put("time", ""+System.currentTimeMillis());
+        errorMap.put("msg", "FK violation");
         return ResponseEntity.badRequest().body(errorMap);
     }
 
@@ -50,11 +49,9 @@ public class CustomRestAdvice {
     @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
     public ResponseEntity<Map<String, String>> handleNoSuchElement(Exception e) {
         log.error(e);
-
         Map<String, String> errorMap = new HashMap<>();
-
-        errorMap.put("time",""+System.currentTimeMillis());
-        errorMap.put("msg", "no such Element Excption");
+        errorMap.put("time", ""+System.currentTimeMillis());
+        errorMap.put("msg", "No Such Element");
         return ResponseEntity.badRequest().body(errorMap);
     }
 }
