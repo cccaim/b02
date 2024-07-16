@@ -40,7 +40,7 @@
 
                         <div class="my-4">
                             <div class="float-end">
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="submit" class="btn btn-primary submitBtn">Submit</button>
                                 <button type="reset" class="btn btn-secondary">Reset</button>
                             </div>
                         </div>
@@ -160,5 +160,26 @@
             targetDiv.remove()
         })
     }
+
+    document.querySelector(".submitBtn").addEventListener("click",function (e){
+        e.preventDefault()
+        e.stopPropagation()
+
+        const target = document.querySelector(".uploadHidden")
+
+        const uploadFiles = uploadResult.querySelectorAll("img")
+
+        let str = ''
+
+        for (let i = 0; i < uploadFiles.length; i++){
+            const uploadFile = uploadFiles[i]
+            const imgLink = uploadFiles.getAttribute("src")
+
+            str += `<input type='hidden' name='fileNames' value="${imgLink}">`
+        }
+
+        target.innerHTML = str;
+        //document.querySelector("form").submit();
+    },false)
 
 </script>
