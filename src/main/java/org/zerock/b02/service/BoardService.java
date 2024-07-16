@@ -1,9 +1,6 @@
 package org.zerock.b02.service;
 
-import org.zerock.b02.dto.BoardDTO;
-import org.zerock.b02.dto.BoardListReplyCountDTO;
-import org.zerock.b02.dto.PageRequestDTO;
-import org.zerock.b02.dto.PageResponseDTO;
+import org.zerock.b02.dto.*;
 
 public interface BoardService {
     //새 글을 등록
@@ -19,5 +16,7 @@ public interface BoardService {
 
     //댓글갯수 포함
     PageResponseDTO<BoardListReplyCountDTO> listWithReplyCount(PageRequestDTO pageRequestDTO);
+
+    PageResponseDTO<BoardListAllDTO> listWithAll(PageRequestDTO pageRequestDTO);
 }
 
