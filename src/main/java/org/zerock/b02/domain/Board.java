@@ -2,6 +2,7 @@ package org.zerock.b02.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -40,6 +41,7 @@ public class Board extends BaseEntity {
             fetch = FetchType.LAZY,
             orphanRemoval = true)
     @Builder.Default
+    @BatchSize(size = 20)
     private Set<BoardImage> imageSet = new HashSet<>();
 
     public void addImage(String uuid, String filename) {

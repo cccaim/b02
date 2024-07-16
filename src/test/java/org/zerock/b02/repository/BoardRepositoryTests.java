@@ -198,4 +198,11 @@ public class BoardRepositoryTests {
             boardRepository.save(board);
         }
     }
+
+    @Transactional
+    @Test
+    public void testModify(){
+      Pageable pageable = PageRequest.of(0, 10, Sort.by("bno").descending());
+      boardRepository.searchWithAll(null,null,pageable);
+    }
 }
