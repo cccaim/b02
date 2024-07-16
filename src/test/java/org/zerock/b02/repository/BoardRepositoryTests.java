@@ -8,7 +8,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.annotation.Commit;
+import org.springframework.transaction.annotation.Transactional;
 import org.zerock.b02.domain.Board;
+import org.zerock.b02.domain.BoardImage;
 import org.zerock.b02.dto.BoardListReplyCountDTO;
 import org.zerock.b02.repository.BoardRepository;
 
@@ -22,6 +25,10 @@ public class BoardRepositoryTests {
 
     @Autowired
     private BoardRepository boardRepository;
+  @Autowired
+  private ReplyRepository replyRepository;
+
+
 
     //@Test
     public void testInsert() {
@@ -132,5 +139,63 @@ public class BoardRepositoryTests {
             board.addImage(UUID.randomUUID().toString(),"file"+i+".jpg");
         }
         boardRepository.save(board);
+    }
+
+    @Test
+    public void testReadWithImages(){
+        Optional<Board> result = boardRepository.findByIdWithImage(1L);
+        Board board = result.orElseThrow();
+//        반드시 존재하는 bno 로 확인
+        log.info(board);
+        log.info("==================");
+        for(BoardImage boardImage : board.getImageSet()){
+            log.info(boardImage);
+        }
+//        log.info(board.getImageSet());
+        //Lazy 로딩은 현재 board 에서 image 리스트를 필요로 할때 검색
+    }
+
+    @Transactional
+    @Commit
+    @Test
+    public void testModifyImages(){
+        Optional<Board> result = boardRepository.findByIdWithImage(1L);
+        Board board = result.orElseThrow();
+
+        //기존의 첨부파일들은 삭제
+        board.clearImages();
+
+        //새로운 첨부파일들
+        for (int i = 0; i < 2; i++){
+            board.addImage(UUID.randomUUID().toString(),"file"+i+".jpg");
+        }
+        boardRepository.save(board);
+    }
+
+    @Test
+    @Transactional
+    @Commit
+    public void testRemoveAll(){
+        Long bno = 1L;
+        replyRepository.deleteByBoard_bno(bno);
+        boardRepository.deleteById(bno);
+    }
+
+    @Test
+    public void testInsertAll(){
+        for(int i = 1; i <= 100; i++){
+            Board board = Board.builder()
+                    .title("타이틀.."+i)
+                    .content("내용.."+i)
+                    .writer("글쓴이.." +i)
+                    .build();
+            for (int j = 0; j < 3; j++){
+                if ( i % 5 == 0){
+                    continue;
+                }
+                board.addImage(UUID.randomUUID().toString(),"file"+j+".jpg");
+            }
+            boardRepository.save(board);
+        }
     }
 }
