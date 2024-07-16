@@ -177,15 +177,6 @@ public class BoardRepositoryTests {
         boardRepository.save(board);
     }
 
-//    @Transactional
-//    @Commit
-
-    @Test
-    public void testRemoveAll(){
-        Long bno = 1L;
-        boardServiceImpl.remove(bno);
-    }
-
     @Test
     public void testInsertAll(){
         for(int i = 1; i <= 100; i++){
@@ -204,18 +195,6 @@ public class BoardRepositoryTests {
         }
     }
 
-//    @Transactional
-    @Test
-    public void testModify(){
-      BoardDTO boardDTO = BoardDTO.builder()
-              .bno(101L)
-              .title("업데이트 제목...101")
-              .content("업데이트 내용 101...")
-              .build();
-
-      boardDTO.setFileName(Arrays.asList(UUID.randomUUID()+"_zzz.jpg"));
-      boardServiceImpl.modify(boardDTO);
-    }
 
     @Transactional
     @Test
@@ -229,37 +208,5 @@ public class BoardRepositoryTests {
 
       result.getContent().forEach(boardListAllDTO -> log.info(boardListAllDTO));
     }
-
-    @Test
-    public void testRegisterWithImages(){
-      log.info(boardServiceImpl.getClass().getName());
-
-      BoardDTO boardDTO = BoardDTO.builder()
-              .title("파일...샘플 타이틀...")
-              .content("샘플 내용...")
-              .writer("user00")
-              .build();
-      boardDTO.setFileName(
-              Arrays.asList(
-                      UUID.randomUUID()+"_aaa.jpg",
-                      UUID.randomUUID()+"_bbb.jpg",
-                      UUID.randomUUID()+"_bbb.jpg"
-              ));
-      Long bno = boardServiceImpl.register(boardDTO);
-
-      log.info("bno: " + bno);
-    }
-
-    @Test
-    public void testReadAll(){
-      Long bno = 101L;
-      BoardDTO boardDTO = boardServiceImpl.readOne(bno);
-
-      log.info(boardDTO);
-      for (String fileName : boardDTO.getFileName()){
-        log.info(fileName);
-      }
-    }
-
 
 }

@@ -1,5 +1,6 @@
 package org.zerock.b02.service;
 
+import org.springframework.data.domain.Page;
 import org.zerock.b02.domain.Board;
 import org.zerock.b02.dto.*;
 
