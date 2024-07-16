@@ -12,10 +12,13 @@ import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 import org.zerock.b02.domain.Board;
 import org.zerock.b02.domain.BoardImage;
+import org.zerock.b02.dto.BoardDTO;
 import org.zerock.b02.dto.BoardListAllDTO;
 import org.zerock.b02.dto.BoardListReplyCountDTO;
 import org.zerock.b02.repository.BoardRepository;
+import org.zerock.b02.service.BoardServiceImpl;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,10 +31,11 @@ public class BoardRepositoryTests {
     private BoardRepository boardRepository;
   @Autowired
   private ReplyRepository replyRepository;
+  @Autowired
+  private BoardServiceImpl boardServiceImpl;
 
 
-
-    //@Test
+  //@Test
     public void testInsert() {
         for (int i = 1; i <= 100; i++) {
             Board board = Board.builder()
@@ -173,13 +177,13 @@ public class BoardRepositoryTests {
         boardRepository.save(board);
     }
 
+//    @Transactional
+//    @Commit
+
     @Test
-    @Transactional
-    @Commit
     public void testRemoveAll(){
         Long bno = 1L;
-        replyRepository.deleteByBoard_bno(bno);
-        boardRepository.deleteById(bno);
+        boardServiceImpl.remove(bno);
     }
 
     @Test
@@ -200,11 +204,17 @@ public class BoardRepositoryTests {
         }
     }
 
-    @Transactional
+//    @Transactional
     @Test
     public void testModify(){
-      Pageable pageable = PageRequest.of(0, 10, Sort.by("bno").descending());
-      boardRepository.searchWithAll(null,null,pageable);
+      BoardDTO boardDTO = BoardDTO.builder()
+              .bno(101L)
+              .title("업데이트 제목...101")
+              .content("업데이트 내용 101...")
+              .build();
+
+      boardDTO.setFileName(Arrays.asList(UUID.randomUUID()+"_zzz.jpg"));
+      boardServiceImpl.modify(boardDTO);
     }
 
     @Transactional
@@ -219,4 +229,37 @@ public class BoardRepositoryTests {
 
       result.getContent().forEach(boardListAllDTO -> log.info(boardListAllDTO));
     }
+
+    @Test
+    public void testRegisterWithImages(){
+      log.info(boardServiceImpl.getClass().getName());
+
+      BoardDTO boardDTO = BoardDTO.builder()
+              .title("파일...샘플 타이틀...")
+              .content("샘플 내용...")
+              .writer("user00")
+              .build();
+      boardDTO.setFileName(
+              Arrays.asList(
+                      UUID.randomUUID()+"_aaa.jpg",
+                      UUID.randomUUID()+"_bbb.jpg",
+                      UUID.randomUUID()+"_bbb.jpg"
+              ));
+      Long bno = boardServiceImpl.register(boardDTO);
+
+      log.info("bno: " + bno);
+    }
+
+    @Test
+    public void testReadAll(){
+      Long bno = 101L;
+      BoardDTO boardDTO = boardServiceImpl.readOne(bno);
+
+      log.info(boardDTO);
+      for (String fileName : boardDTO.getFileName()){
+        log.info(fileName);
+      }
+    }
+
+
 }

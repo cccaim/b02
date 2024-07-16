@@ -27,19 +27,19 @@ public class BoardServiceImpl implements BoardService{
     //새 게시글 등록 메서드 리턴(글번호)
     @Override
     public Long register(BoardDTO boardDTO) {
-        Board board = modelMapper.map(boardDTO, Board.class);
+        Board board = dtoToEntity(boardDTO);
         Long bno = boardRepository.save(board).getBno();
 
         return bno;
     }
 
     @Override
-    public BoardDTO readOne(Long bno) {
-        Optional<Board> result = boardRepository.findById(bno);
+    public  BoardDTO readOne(Long bno){
+        Optional<Board> result = boardRepository.findByIdWithImage(bno);
         Board board = result.orElseThrow();
-        BoardDTO dto = modelMapper.map(board, BoardDTO.class);
+        BoardDTO boardDTO = entityToDto(board);
 
-        return dto;
+        return boardDTO;
     }
 
     @Override
@@ -47,8 +47,17 @@ public class BoardServiceImpl implements BoardService{
         //먼저 수정할 board 데이터 가져오기
         Optional<Board> result = boardRepository.findById(boardDTO.getBno());
         Board board = result.orElseThrow();
+
         //보드의 change메서드로 업데이트함
         board.change(boardDTO.getTitle(), boardDTO.getContent());
+        //첨부파일
+        board.clearImages();// 전부 삭제
+        if (boardDTO.getFileName() != null){
+            for (String fileName : boardDTO.getFileName()) {
+                String[] arr =  fileName.split("_");
+                board.addImage(arr[0], arr[1]);
+            }
+        }
         boardRepository.save(board); //저장하기
     }
 
@@ -98,4 +107,7 @@ public class BoardServiceImpl implements BoardService{
     {
         return null;
     }
+
+
+
 }
