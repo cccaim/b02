@@ -9,20 +9,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class BoardListAllDTO {
+    //게시글에 댓글개수와 이미지 포함
+    private Long bno;
+    private String title;
+    private String writer;
+    private LocalDateTime regDate;
+    private Long replyCount;
 
-  private Long bno;
-
-  private String title;
-
-  private String writer;
-
-  private LocalDateTime regDate;
-
-  private Long replyCount;
-
-  private List<BoardImageDTO> boardImages;
+    private List<BoardImageDTO> boardImages;
 }

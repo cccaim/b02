@@ -27,18 +27,20 @@ public class BoardServiceImpl implements BoardService{
     //새 게시글 등록 메서드 리턴(글번호)
     @Override
     public Long register(BoardDTO boardDTO) {
+
         Board board = dtoToEntity(boardDTO);
+
         Long bno = boardRepository.save(board).getBno();
 
         return bno;
     }
 
+    //이미지가 포함된 게시물 조회
     @Override
-    public  BoardDTO readOne(Long bno){
-        Optional<Board> result = boardRepository.findByIdWithImage(bno);
+    public BoardDTO readOne(Long bno) {
+        Optional<Board> result = boardRepository.findByIdWithImages(bno);
         Board board = result.orElseThrow();
         BoardDTO boardDTO = entityToDto(board);
-
         return boardDTO;
     }
 
@@ -47,14 +49,13 @@ public class BoardServiceImpl implements BoardService{
         //먼저 수정할 board 데이터 가져오기
         Optional<Board> result = boardRepository.findById(boardDTO.getBno());
         Board board = result.orElseThrow();
-
         //보드의 change메서드로 업데이트함
         board.change(boardDTO.getTitle(), boardDTO.getContent());
-        //첨부파일
-        board.clearImages();// 전부 삭제
-        if (boardDTO.getFileName() != null){
-            for (String fileName : boardDTO.getFileName()) {
-                String[] arr =  fileName.split("_");
+        //첨부파일 처리
+        board.clearImages(); //전부 삭제
+        if(boardDTO.getFileNames() != null){
+            for(String filename : boardDTO.getFileNames()){
+                String[] arr = filename.split("_");
                 board.addImage(arr[0], arr[1]);
             }
         }
@@ -102,19 +103,18 @@ public class BoardServiceImpl implements BoardService{
                 .build();
     }
 
-
-
     @Override
-    public PageResponseDTO<BoardListAllDTO> listWithAll(PageRequestDTO pageRequestDTO){
+    public PageResponseDTO<BoardListAllDTO> listWithAll(PageRequestDTO pageRequestDTO) {
         String[] types = pageRequestDTO.getTypes();
         String keyword = pageRequestDTO.getKeyword();
         Pageable pageable = pageRequestDTO.getPageable("bno");
+
         Page<BoardListAllDTO> result = boardRepository.searchWithAll(types,keyword,pageable);
 
         return PageResponseDTO.<BoardListAllDTO>withAll()
                 .pageRequestDTO(pageRequestDTO)
                 .dtoList(result.getContent())
-                .total((int) result.getTotalElements())
+                .total((int)result.getTotalElements())
                 .build();
     }
 }

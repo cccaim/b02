@@ -7,7 +7,6 @@ import org.hibernate.annotations.BatchSize;
 import java.util.HashSet;
 import java.util.Set;
 
-
 //entity 는 테이블과 같은 클래스
 @Entity
 @Getter
@@ -30,32 +29,30 @@ public class Board extends BaseEntity {
     @Column(length = 50, nullable = false)
     private String writer;  //글쓴이
 
+    @OneToMany(mappedBy = "board",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            orphanRemoval = true )
+    @Builder.Default
+    @BatchSize(size = 20)
+    private Set<BoardImage> imageSet = new HashSet<>(); //중복안되는 이미지객체 리스트
+
     public void change(String title, String content) {
         this.title = title;
         this.content = content;
     }
 
-    @OneToMany(
-            mappedBy = "board",
-            cascade = {CascadeType.ALL},
-            fetch = FetchType.LAZY,
-            orphanRemoval = true)
-    @Builder.Default
-    @BatchSize(size = 20)
-    private Set<BoardImage> imageSet = new HashSet<>();
-
-    public void addImage(String uuid, String filename) {
+    public void addImage(String uuid, String fileName) {
         BoardImage boardImage = BoardImage.builder()
                 .uuid(uuid)
-                .filename(filename)
+                .fileName(fileName)
                 .board(this)
                 .ord(imageSet.size())
                 .build();
-                imageSet.add(boardImage);
-
+        imageSet.add(boardImage);
     }
 
-    public void clearImages() {
+    public void clearImages(){
         imageSet.forEach(boardImage -> boardImage.changeBoard(null));
         this.imageSet.clear();
     }

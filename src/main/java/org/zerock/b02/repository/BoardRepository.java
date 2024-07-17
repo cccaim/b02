@@ -16,7 +16,8 @@ public interface BoardRepository extends JpaRepository<Board, Long>, BoardSearch
     //@Query("select b from Board b where b.title like concat('%',:keyword,'%')")
     //Page<Board> findKeyword(String keyword, Pageable pageable);
 
-  @EntityGraph(attributePaths = {"imageSet"})
-  @Query("select b from Board b where b.bno =:bno")
-  Optional<Board> findByIdWithImage(Long bno);
+    //엔티티 그래프로 imageSet 도 즉시 가져오기
+    @EntityGraph(attributePaths = "imageSet")
+    @Query("select b from Board b where b.bno = :bno")
+    Optional<Board> findByIdWithImages(Long bno);
 }

@@ -1,5 +1,6 @@
 package org.zerock.b02.repository;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,16 +10,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Commit;
-import org.springframework.transaction.annotation.Transactional;
 import org.zerock.b02.domain.Board;
-import org.zerock.b02.domain.BoardImage;
-import org.zerock.b02.dto.BoardDTO;
 import org.zerock.b02.dto.BoardListAllDTO;
 import org.zerock.b02.dto.BoardListReplyCountDTO;
 import org.zerock.b02.repository.BoardRepository;
-import org.zerock.b02.service.BoardServiceImpl;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,13 +25,11 @@ public class BoardRepositoryTests {
 
     @Autowired
     private BoardRepository boardRepository;
-  @Autowired
-  private ReplyRepository replyRepository;
-  @Autowired
-  private BoardServiceImpl boardServiceImpl;
 
+    @Autowired
+    private ReplyRepository replyRepository;
 
-  //@Test
+    //@Test
     public void testInsert() {
         for (int i = 1; i <= 100; i++) {
             Board board = Board.builder()
@@ -134,79 +128,89 @@ public class BoardRepositoryTests {
     }
 
     @Test
-    public void testInsertWithImges(){
+    public void testInsertWithImages(){
+        //게시글 객체를 빌더로 만들기
         Board board = Board.builder()
-                .title("이미지 테스트")
+                .title("Image Test")
                 .content("첨부파일 테스트")
-                .writer("테스터")
+                .writer("tester")
                 .build();
-        for (int i = 0; i < 3; i++){
-            board.addImage(UUID.randomUUID().toString(),"file"+i+".jpg");
+        //이미지 리스트에 이미지 추가
+        for (int i = 0; i < 3; i++) {
+            board.addImage(UUID.randomUUID().toString(), "file"+i+".jpg");
         }
+
         boardRepository.save(board);
     }
 
     @Test
     public void testReadWithImages(){
-        Optional<Board> result = boardRepository.findByIdWithImage(1L);
+
+        Optional<Board> result = boardRepository.findByIdWithImages(1L);
+
         Board board = result.orElseThrow();
-//        반드시 존재하는 bno 로 확인
-        log.info(board);
-        log.info("==================");
-        for(BoardImage boardImage : board.getImageSet()){
-            log.info(boardImage);
-        }
-//        log.info(board.getImageSet());
-        //Lazy 로딩은 현재 board 에서 image 리스트를 필요로 할때 검색
+
+        log.info(board.toString());
+        log.info("--------------------------");
+        log.info(board.getImageSet()); //Lazy 로딩은 현재 board 에서 image 리스트를 필요로 할때 검색함.
     }
 
     @Transactional
     @Commit
     @Test
     public void testModifyImages(){
-        Optional<Board> result = boardRepository.findByIdWithImage(1L);
+        //글번호로 게시글을 가져와서 첨부파일을 전체 삭제하고 새로 첨부파일을 입력
+        Optional<Board> result = boardRepository.findByIdWithImages(1L);
         Board board = result.orElseThrow();
-
-        //기존의 첨부파일들은 삭제
-        board.clearImages();
-
-        //새로운 첨부파일들
-        for (int i = 0; i < 2; i++){
-            board.addImage(UUID.randomUUID().toString(),"file"+i+".jpg");
+        board.clearImages(); //첨부파일 삭제
+        for (int i = 0; i < 2; i++) {
+            board.addImage(UUID.randomUUID().toString(), "file"+i+".jpg");
         }
         boardRepository.save(board);
     }
 
     @Test
+    @Transactional
+    @Commit
+    public void testRemoveAll(){
+        //게시글을 삭제하기전 해당 댓글들을 먼저 삭제하고 삭제함
+        Long bno = 1L;
+        replyRepository.deleteByBoard_Bno(bno);
+        boardRepository.deleteById(bno);
+    }
+
+    @Test
     public void testInsertAll(){
-        for(int i = 1; i <= 100; i++){
+        //100개의 게시글을 테스트 입력
+        for (int i = 1; i <= 100; i++) {
             Board board = Board.builder()
-                    .title("타이틀.."+i)
-                    .content("내용.."+i)
-                    .writer("글쓴이.." +i)
+                    .title("제목.." + i)
+                    .content("내용..."+i)
+                    .writer("유저.."+i)
                     .build();
-            for (int j = 0; j < 3; j++){
-                if ( i % 5 == 0){
-                    continue;
+            for (int j = 0; j < 3; j++) { //이미지도 3개씩 입력한다.
+                if (i % 5 == 0) {
+                    continue; //5번째 게시글은 이미지 입력 안함
                 }
-                board.addImage(UUID.randomUUID().toString(),"file"+j+".jpg");
+                board.addImage(UUID.randomUUID().toString(), "file"+i+".jpg");
             }
             boardRepository.save(board);
         }
     }
 
-
     @Transactional
     @Test
     public void testSearchImageReplyCount(){
-      Pageable pageable = PageRequest.of(0, 10, Sort.by("bno").descending());
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("bno").descending());
 
-      Page<BoardListAllDTO> result = boardRepository.searchWithAll(null,null,pageable);
+        //boardRepository.searchWithAll(null, null, pageable);
 
-      log.info("=====================");
-      log.info(result.getTotalElements());
+        Page<BoardListAllDTO> result = boardRepository.searchWithAll(null,null,pageable);
 
-      result.getContent().forEach(boardListAllDTO -> log.info(boardListAllDTO));
+        log.info("----------------------------");
+        log.info(result.getTotalElements());
+
+        result.getContent().forEach(boardListAllDTO -> log.info(boardListAllDTO));
     }
 
 }

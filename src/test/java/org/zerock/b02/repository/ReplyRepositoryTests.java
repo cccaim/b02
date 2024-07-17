@@ -37,7 +37,7 @@ public class ReplyRepositoryTests {
     }
 
     @Test
-    public void testBoardReplies() {
+    public void testBaordReplies() {
         Long bno = 100L;
         Pageable pageable = PageRequest.of(0, 10, Sort.by("rno").descending());
         Page<Reply> result = replyRepository.listOfBoard(bno, pageable);

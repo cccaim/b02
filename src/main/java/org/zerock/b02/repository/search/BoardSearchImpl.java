@@ -148,45 +148,46 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
 
     @Override
     public Page<BoardListAllDTO> searchWithAll(String[] types, String keyword, Pageable pageable) {
-        
+
         QBoard board = QBoard.board;
         QReply reply = QReply.reply;
-        
-        JPQLQuery<Board> boardJPQLQuery = from(board); // select * from board
-        boardJPQLQuery.leftJoin(reply).on(reply.board.eq(board)); 
-        // 왼쪽 조인 게시글이 같을 때 댓글
 
-        if( (types != null && types.length > 0) && keyword != null ){
-            BooleanBuilder booleanBuilder = new BooleanBuilder();
+        JPQLQuery<Board> boardJPQLQuery = from(board); //select * from board
+        boardJPQLQuery.leftJoin(reply).on(reply.board.eq(board));// 왼쪽 조인 게시글이 같을때 댓글
+        // 조건 검색
+        if( (types != null && types.length > 0) && keyword != null ){ //검색 조건과 키워드가 있다면
+
+            BooleanBuilder booleanBuilder = new BooleanBuilder(); // (
+
             for(String type: types){
+
                 switch (type){
-                    case "t":
+                    case "t":  //제목
                         booleanBuilder.or(board.title.contains(keyword));
                         break;
-                    case "c":
+                    case "c":  //내용
                         booleanBuilder.or(board.content.contains(keyword));
                         break;
-                    case "w":
+                    case "w":  //글쓴이
                         booleanBuilder.or(board.writer.contains(keyword));
                         break;
                 }
-            }
+            }//end for
             boardJPQLQuery.where(booleanBuilder);
-        }
+        }//end if
 
+        // 게시글 그룹
         boardJPQLQuery.groupBy(board);
-
-        // 페이징 적용
+        //페이징 적용
         getQuerydsl().applyPagination(pageable, boardJPQLQuery);
-
-        JPQLQuery<Tuple> tupleJPQLQuery = boardJPQLQuery.select(board,reply.countDistinct());
+        //댓글 갯수 추가하는 튜플
+        JPQLQuery<Tuple> tupleJPQLQuery = boardJPQLQuery.select(board, reply.countDistinct());
 
         List<Tuple> tupleList = tupleJPQLQuery.fetch();
 
         List<BoardListAllDTO> dtoList = tupleList.stream().map(tuple -> {
-
             Board board1 = (Board) tuple.get(board);
-            long replyCount = tuple.get(1,Long.class);
+            long replyCount = tuple.get(1, Long.class);
 
             BoardListAllDTO dto = BoardListAllDTO.builder()
                     .bno(board1.getBno())
@@ -195,17 +196,16 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
                     .regDate(board1.getRegDate())
                     .replyCount(replyCount)
                     .build();
-
-            // BoardImage 를 BoardImageDTO 처리할 부분
+            //이미지처리부분
             List<BoardImageDTO> imageDTOS = board1.getImageSet().stream().sorted()
                     .map(boardImage -> BoardImageDTO.builder()
                             .uuid(boardImage.getUuid())
-                            .fileName(boardImage.getFilename())
+                            .fileName(boardImage.getFileName())
                             .ord(boardImage.getOrd())
-                            .build())
-                    .collect(Collectors.toList());
+                            .build()
+                    ).collect(Collectors.toList());
 
-            dto.setBoardImages(imageDTOS); //처리된 BoardImageDTO들을 추가
+            dto.setBoardImages(imageDTOS); //처리된 이미지들을 추가
 
             return dto;
         }).collect(Collectors.toList());
@@ -214,4 +214,5 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
 
         return new PageImpl<>(dtoList, pageable, totalCount);
     }
+
 }

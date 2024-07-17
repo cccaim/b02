@@ -24,7 +24,7 @@ public class QBoardImage extends EntityPathBase<BoardImage> {
 
     public final QBoard board;
 
-    public final StringPath filename = createString("filename");
+    public final StringPath fileName = createString("fileName");
 
     public final NumberPath<Integer> ord = createNumber("ord", Integer.class);
 
