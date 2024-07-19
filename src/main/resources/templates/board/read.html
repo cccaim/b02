@@ -53,14 +53,12 @@
                             </a>
                         </div>
                     </div>
-
-
                 </div><!--end card body-->
-
+                <!--첨부파일 이미지가 있으면 표시-->
                 <div class="col">
-                    <div class="card" th:if="${dto.fileNames != null && dto.fileNames.size() > 0}">
-                        <img class="card-img-top" th:each="fileName: ${dto.fileNames}" th:src="|/view/${fileName}|">
-
+                    <div class="card" th:if="${dto.fileNames != null && dto.fileNames.size()>0}">
+                        <img class="card-img-top" th:each="fileName : ${dto.fileNames}"
+                             th:src="|/view/${fileName}|">
                     </div>
                 </div>
 

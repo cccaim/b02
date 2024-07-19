@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,7 +18,6 @@ import org.zerock.b02.dto.*;
 import org.zerock.b02.service.BoardService;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
@@ -26,21 +26,22 @@ import java.util.List;
 @Log4j2
 @RequiredArgsConstructor
 public class BoardController {
-
+    //업로드된 파일들의 경로
     @Value("${org.zerock.upload.path}")
     private String uploadPath;
+
     private final BoardService boardService;
 
     @GetMapping("/list")
     public void list(PageRequestDTO pageRequestDTO, Model model) {
         //controller에서 리턴이 void 일때 요청주소 /board/list와 같은 template html이 표시됨
-        //PageResponseDTO<BoardDTO> responseDTO = boardService.list(pageRequestDTO);
         PageResponseDTO<BoardListAllDTO> responseDTO =
                 boardService.listWithAll(pageRequestDTO);
         log.info(responseDTO);
         model.addAttribute("responseDTO", responseDTO);//화면에 전달
     }
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/register")
     public void register() {
 
@@ -65,6 +66,7 @@ public class BoardController {
     }
 
     //board/read.html , board/modify.html
+    @PreAuthorize("isAuthenticated()")
     @GetMapping({"/read","/modify"})
     public void read(Long bno, PageRequestDTO pageRequestDTO, Model model) {
         BoardDTO boardDTO = boardService.readOne(bno);
@@ -97,40 +99,33 @@ public class BoardController {
 
     @PostMapping("/remove")
     public String remove(BoardDTO boardDTO, RedirectAttributes redirectAttributes) {
-
         Long bno = boardDTO.getBno();
-        log.info("remove post.." + bno);
-
         boardService.remove(bno);
-
+        //게시글 삭제후에 첨부파일 삭제
         log.info(boardDTO.getFileNames());
         List<String> fileNames = boardDTO.getFileNames();
-        if (fileNames != null && fileNames.size() > 0) {
+        if(fileNames != null && fileNames.size() > 0) {
             removeFiles(fileNames);
         }
-
         redirectAttributes.addFlashAttribute("result","removed");
         return "redirect:/board/list";
     }
 
-    public void removeFiles(List<String> files) {
-        for (String fileName : files) {
+    private void removeFiles(List<String> fileNames) {
+        for (String fileName : fileNames) {
             Resource resource = new FileSystemResource(uploadPath + File.separator + fileName);
-
-            String resourceName = resource.getFilename();
-
+            //String rsourceName = resource.getFilename();
             try {
                 String contentType = Files.probeContentType(resource.getFile().toPath());
-
                 resource.getFile().delete();
-                if (contentType.startsWith("image")) {
+                if(contentType.startsWith("image")) {
                     File thumbnailFile = new File(uploadPath + File.separator + "s_" + fileName);
                     thumbnailFile.delete();
                 }
-            } catch (IOException e) {
+            } catch (Exception e){
                 log.error(e.getMessage());
             }
-        }//end for
+        }
     }
 
 }

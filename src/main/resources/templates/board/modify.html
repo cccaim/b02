@@ -167,25 +167,42 @@
     function callRemoveFiles(){
 
         removeFileList.forEach( ({uuid,fileName}) => {
-            removeFileToServer({uuid, fileName})
+            removeFileToServer(uuid, fileName)
         })
     }
 
-
-
+    //최종 삭제하기 버튼 클릭시
     document.querySelector(".removeBtn").addEventListener("click", function(e){
         e.preventDefault()
         e.stopPropagation()
 
-        //화면에 보이는 파일들을 FORM에 등록
+        //화면에 보이는 파일들을 form 에 추가
         appendFileData()
-        //화면에 안보이게 처리된 파일을 FORM 에 추가
+        //화면에 안보이게 처리된 파일들을 form 에 추가
         appendNotShownData()
 
         formObj.action = `/board/remove`
         formObj.method ='post'
         formObj.submit()
     }, false)
+
+    function appendNotShownData(){
+        //x를 눌러서 삭제파일리스트에 있는 파일들도 삭제한다.
+        if(removeFileList.length == 0){
+            return
+        }
+
+        const target = document.querySelector(".uploadHidden")
+        let str = ''
+
+        for (let i = 0; i < removeFileList.length ; i++) {
+
+            const {uuid, fileName} = removeFileList[i];
+
+            str += `<input type='hidden' name='fileNames' value="${uuid}_${fileName}">`
+        }
+        target.innerHTML += str;
+    }
 
     document.querySelector(".listBtn").addEventListener("click", function(e){
         e.preventDefault()
