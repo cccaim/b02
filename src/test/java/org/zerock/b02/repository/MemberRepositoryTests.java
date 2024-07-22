@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.zerock.b02.domain.Member;
 import org.zerock.b02.domain.MemberRole;
 
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 @SpringBootTest
@@ -18,7 +19,8 @@ public class MemberRepositoryTests {
     private MemberRepository memberRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-
+    
+    //  회원 입력테스트
     @Test
     public void insertMembers(){
         //총 100명의 유저 생성하여 추가하기
@@ -34,5 +36,20 @@ public class MemberRepositoryTests {
             }
             memberRepository.save(member); //DB에 저장
         });
+    }
+
+    //  회원 조회 테스트
+    @Test
+    public void testRead(){
+        //  getWithRoles 로 roleSet 과 같이 가져옴
+        Optional<Member> result = memberRepository.getWithRoles("member99");
+
+        Member member = result.orElseThrow();
+
+        log.info(member);
+        log.info(member.getRoleSet());
+
+        member.getRoleSet().forEach(role -> log.info(role.name()));
+
     }
 }

@@ -24,6 +24,7 @@ public class Member extends BaseEntity {
     private String email;
 
     private boolean del;   //탈퇴
+
     private boolean social; //쇼셜로 로그인
 
     @ElementCollection(fetch = FetchType.LAZY)
